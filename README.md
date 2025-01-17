@@ -1,16 +1,20 @@
-# OctOffers
-Octoffers is a tool that automatically hunts down suitable jobs and applies for you on major job boards.
+# Octoffers
+
+Octoffers is a community-driven project that simplifies job searching.
+We manually integrate top career platforms, making it easy to auto-apply to jobs
+with just a few clicks. Our open-source tool is free, efficient, and designed to help job seekers like you.
 
 
 <img src="./.assets/octoffers_mascot.png" align="right" width="50%">
 
 ### Supported Platforms
-| Platform | Type    | Status            |
-|----------|---------|-------------------|
-| Djinni   | Public  | Complete          |
-| Indeed   | Private | Beta              |
-| WorkBC   | Public  | Under Development |
-| Monster  | Public  | Under Development |
+| Platform      | Type    | Status            |
+|---------------|---------|-------------------|
+| Djinni        | Public  | Complete          |
+| Indeed        | Private | Beta              |
+| ZipRecruiter  | Private | Under Development |
+| WorkBC        | Public  | ToDo              |
+| Monster       | Public  | ToDo              |
 
 ### Requirements
 - **python 3.9+**
