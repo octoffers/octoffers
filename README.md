@@ -24,13 +24,6 @@ with just a few clicks. Our open-source tool is free, efficient, and designed to
 <br>
 <hr>
 
-### Why would you use Octoffers
-
-- **Save countless hours:** Focus on preparing for interviews instead of tedious job hunting tasks.
-- Increase your application success rate: Stand out from the crowd with AI-powered cover letters and personalized messages.
-- Apply to more jobs efficiently: Octoffers can handle the heavy lifting, allowing you to focus on jobs that truly interest you.
-- Open-source and customizable: Contribute to the project's development and customize it to your specific needs.
-
 ### Quick start
 1) **Install required dependency**
 `pip install -r requirements.txt`
