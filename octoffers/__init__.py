@@ -1,6 +1,7 @@
 from fire import Fire
 from octoffers.platforms.djinni import Djinni
 from octoffers.platforms.profile import Profile
+from octoffers.logger import log
 from sys import path
 from pathlib import Path
 from os import environ
@@ -10,12 +11,10 @@ class Octoffers:
         self.djinni = Djinni()
         self.profile = Profile()
         try:
-            from private.indeed import Indeed
+            from octoffers_private.platforms.indeed import Indeed
             self.indeed = Indeed(profile=profile)
-        except ImportError:
-            pass
         except ModuleNotFoundError:
-            pass
+            log.info("Indeed Driver isn't installed")
 
     def manual_authorization(self):
         self.djinni.manual_authorization()
