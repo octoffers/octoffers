@@ -1,26 +1,25 @@
 import os
 import sys
-from dotenv import load_dotenv
 import re
+from os import environ
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-
 from octoffers.platforms.driver import Driver
 from octoffers.db.schemes.djinni import db
-from octoffers.intergrations.chat_gpt import get_cover_letter_from_openai
-
-load_dotenv()
-
 
 class Djinni(Driver):
-    JOB_FILTER = "?all-keywords=&any-of-keywords=&exclude-keywords="
 
     def __init__(self, domain="djinni.co"):
         super().__init__(domain)
         self.origin = f"https://{domain}/jobs/"
         self.chrome_args = ("--headless", "--no-sandbox", "--disable-dev-shm-usage")
+        try:
+            self.session_cookies = [{"name": "sessionid", "value": environ["DJINNI_SESSION_ID"], "domain": ".djinni.co"}]
+        except KeyError:
+            print("ERROR: Cookies aren't set")
+            exit(1)
 
     def _get_job_list(self, url):
         self.driver.get(url)
@@ -48,7 +47,6 @@ class Djinni(Driver):
         self.session_authorization()
         for idx in range(1, pages + 1):
             full_url = (
-                #f"{self.origin}{self.JOB_FILTER}&primary_keyword={role}&page={idx}"
                 f"{self.origin}?all-keywords={role}&keywords={role}&page={idx}"
                 if role
                 else f"{self.origin}?page={idx}"
@@ -106,8 +104,7 @@ class Djinni(Driver):
                 #     print("Condition triggered keywords")
 
                 job_exists = db.execute(
-                    "SELECT 1 FROM jobs WHERE job_id = ?", (job_id,)
-                ).fetchone()
+                    "SELECT 1 FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
 
                 if not job_exists:
                     try:
@@ -142,7 +139,6 @@ class Djinni(Driver):
 
             self.driver.get(job_link)
 
-            # Search for the “Apply for a vacancy” button and click on it
             try:
                 apply_button = self.wait.until(
                     lambda driver: driver.find_element(
@@ -151,20 +147,19 @@ class Djinni(Driver):
                     )
                 )
                 # Take and save a screenshot
-                self.driver.save_screenshot("screenshots/screenshot_send_cv.png")
+                # self.driver.save_screenshot("screenshots/screenshot_send_cv.png")
                 apply_button.click()
             except TimeoutException:
                 print("Button not found or already applied")
                 self.driver.save_screenshot("screenshots/screenshot_send_cv.png")
                 continue
 
-            if ai_generated_letter:
-                # Generating a cover letter
-                cover_letter = get_cover_letter_from_openai(job_description)
-            elif msg:
+            if msg:
                 cover_letter = msg
+            else:
+                print("ERROR: Pass cover letter to the arguments")
+                exit(1)
 
-            # Inserting a Cover Letter and Submitting an Application
             try:
                 message_box = self.wait.until(
                     lambda driver: driver.find_element(By.ID, "message")

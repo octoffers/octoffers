@@ -9,17 +9,10 @@ from pathlib import Path
 
 load_dotenv()
 
-# Getting cookie values
-session_id = getenv("DJINNI_SESSION_ID")
-
-# Generating a list of cookies
-session_cookies = [{"name": "sessionid", "value": session_id, "domain": ".djinni.co"}]
-
-
 class Driver:
     def __init__(self, domain: str = None):
         self.domain = domain
-        self.session_cookies = session_cookies
+        self.session_cookies = list()
         self.octoffers_path = Path.home() / "Octoffers" if osname == "nt" else Path.home() / ".config/octoffers"
         self.profile_name = "default"
         self.profile_path = self.octoffers_path / "profiles" / self.profile_name
