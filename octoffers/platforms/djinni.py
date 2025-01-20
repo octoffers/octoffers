@@ -1,5 +1,3 @@
-import os
-import sys
 import re
 from os import environ
 from selenium.webdriver.support.ui import WebDriverWait
@@ -56,7 +54,7 @@ class Djinni(Driver):
             print(full_url)  
 
             if self.driver.current_url == self.origin:
-                print("Redirected to the main page")
+                print("Redieected to the main page")
                 break
 
             for job_item in job_list:
