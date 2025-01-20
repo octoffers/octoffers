@@ -4,13 +4,15 @@ from octoffers.platforms.driver import Driver
 from octoffers.db.schemes.ziprecruiter import db
 from os import environ 
 from sys import exit
+from ipdb import pm
+from sqlite3 import IntegrityError
 
 class ZipRecruiter(Driver):
 
     def __init__(self, domain="ziprecruiter.com"):
         super().__init__(domain)
         self.origin = f"https://{domain}/jobs-search" 
-        self.chrome_args = ("--no-sandbox", "--disable-dev-shm-usage")
+        self.chrome_args = ("--disable-dev-shm-usage",)
         try:
             self.session_cookies = [{
                 "name": "ziprecruiter_session",
@@ -23,8 +25,54 @@ class ZipRecruiter(Driver):
 
     def fetch(self, role: str, location: str, pages: int = 1):
         self._initiate_driver(*self.chrome_args)
-        self.session_authorization()
+        
+        # FIXME: Currently works only with default profile
+        for cookie in self.driver.get_cookies():
+            if cookie["name"] == "ziprecruiter_session":
+                if cookie["value"] != self.session_cookies["value"]:
+                    self.session_authorization()
+
         for idx in range(1, pages):
-            url = f"{self.origin}?search={role}&location={location}&page={idx}" 
+            url = f"{self.origin}?search={role}&location={location}&page={idx}"
             self.driver.get(url)
-            breakpoint()
+            posts = self.wait.until(
+                lambda driver: driver.find_elements(By.CLASS_NAME, "job_result_two_pane")
+            )
+            for job in posts:
+                job.find_element(By.TAG_NAME, "h2").click()
+            
+                titles = self.wait.until(
+                    lambda driver: driver.find_elements(By.TAG_NAME, "h1")
+                )
+                job_description = self.wait.until(
+                    lambda driver: driver.find_element(
+                        By.CSS_SELECTOR, ".text-primary.whitespace-pre-line.break-words"
+                    ).text
+                )
+
+                try:
+                    self.driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']")
+                    easy_apply = True
+                except:
+                    easy_apply = False
+            
+                try:
+                    db.execute("""
+                        INSERT INTO jobs(
+                            link, 
+                            role, 
+                            description, 
+                            easy_apply
+                        ) VALUES (?,?,?,?)""", 
+                        (
+                        url,
+                        "".join([title.text for title in titles]), 
+                        job_description, 
+                        easy_apply
+                        )
+                    )
+                    db.commit()
+                except IntegrityError:
+                    pass
+                    
+

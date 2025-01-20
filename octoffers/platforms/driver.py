@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from os import getenv, name as osname
 from pathlib import Path
 import undetected_chromedriver as uc
+from octoffers.logger import log
 
 
 load_dotenv()
@@ -21,12 +22,14 @@ class Driver:
 
     def _initiate_driver(self, *argv):
         options = webdriver.ChromeOptions()
+        options.add_argument(f"--user-data-dir={self.profile_path}")
+        log.info(f"Profile {self.profile_name} has been loaded")
         for arg in argv:
             options.add_argument(str(arg))
         
         self.driver = uc.Chrome(options=options)
 
-        #self.wait = WebDriverWait(self.driver, 5)
+        self.wait = WebDriverWait(self.driver, 5)
 
     def session_authorization(self):
         self.driver.get(f"https://{self.domain}")
@@ -40,4 +43,5 @@ class Driver:
             self.driver.add_cookie(cookie)
 
         # Reloading the page to apply cookies
-        # self.driver.refresh()
+        self.driver.refresh()
+        log.info("Session cookies are set")

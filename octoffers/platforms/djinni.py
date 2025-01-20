@@ -27,6 +27,7 @@ class Djinni(Driver):
                 By.XPATH, "//li[starts-with(@id, 'job-item-')]" 
             )
         )
+    
 
     def _parse_salary(self, salary_text):
         # Extracting numeric values from a salary string
