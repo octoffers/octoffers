@@ -10,7 +10,7 @@ with db:
     db.execute("""
     CREATE TABLE IF NOT EXISTS jobs (
         id INTEGER PRIMARY KEY,
-        job_id VARCHAR(255) UNIQUE,
+        link TEXT CHECK(link LIKE 'https://%') UNIQUE,
         role TEXT,
         description TEXT,
         easy_apply BOOLEAN DEFAULT FALSE,

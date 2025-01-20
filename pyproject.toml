@@ -11,7 +11,8 @@ dependencies = [
     "selenium==4.15.2",
     "python-dotenv==1.0.0",
     "requests==2.31.0",
-    "pytest==8.1.1"
+    "pytest==8.1.1",
+    "undetected-chromdriver==3.5.5"
 ]
 
 [project.scripts]
