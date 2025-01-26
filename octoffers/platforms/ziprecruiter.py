@@ -25,7 +25,7 @@ class ZipRecruiter(Driver):
 
     def fetch(self, role: str, location: str, pages: int = 1):
         self._initiate_driver(*self.chrome_args)
-        
+
         # FIXME: Currently works only with default profile
         for cookie in self.driver.get_cookies():
             if cookie["name"] == "ziprecruiter_session":
@@ -40,7 +40,7 @@ class ZipRecruiter(Driver):
             )
             for job in posts:
                 job.find_element(By.TAG_NAME, "h2").click()
-            
+
                 titles = self.wait.until(
                     lambda driver: driver.find_elements(By.TAG_NAME, "h1")
                 )
@@ -50,29 +50,30 @@ class ZipRecruiter(Driver):
                     ).text
                 )
 
+                job_url = self.driver.current_url
+
                 try:
                     self.driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']")
                     easy_apply = True
                 except:
                     easy_apply = False
-            
+
                 try:
+                    log.info(f"Commiting job posting to the database: {job_url}")
                     db.execute("""
                         INSERT INTO jobs(
-                            link, 
-                            role, 
-                            description, 
+                            link,
+                            role,
+                            description,
                             easy_apply
                         ) VALUES (?,?,?,?)""", 
                         (
-                        url,
-                        "".join([title.text for title in titles]), 
-                        job_description, 
+                        job_url,
+                        "".join([title.text for title in titles]),
+                        job_description,
                         easy_apply
                         )
                     )
                     db.commit()
-                except IntegrityError:
-                    pass
-                    
-
+                except IntegrityError as e:
+                    log.error(f"Couldn't insert job posting: {e}")
