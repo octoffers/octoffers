@@ -2,10 +2,11 @@ from octoffers.logger import log
 from selenium.webdriver.common.by import By
 from octoffers.platforms.driver import Driver
 from octoffers.db.schemes.ziprecruiter import db
-from os import environ 
+from os import environ
 from sys import exit
 from ipdb import pm
 from sqlite3 import IntegrityError
+from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 
 class ZipRecruiter(Driver):
 
@@ -23,7 +24,7 @@ class ZipRecruiter(Driver):
             log.error("Session Cookies aren't set in your environment variables")
             exit(1)
 
-    def fetch(self, role: str, location: str, pages: int = 1):
+    def _authenticate(self):
         self._initiate_driver(*self.chrome_args)
 
         # FIXME: Currently works only with default profile
@@ -32,7 +33,10 @@ class ZipRecruiter(Driver):
                 if cookie["value"] != self.session_cookies["value"]:
                     self.session_authorization()
 
-        for idx in range(1, pages):
+    def fetch(self, role: str, location: str, pages: int = 1):
+        self._authenticate()
+
+        for idx in range(1, pages+1):
             url = f"{self.origin}?search={role}&location={location}&page={idx}"
             self.driver.get(url)
             posts = self.wait.until(
@@ -52,14 +56,14 @@ class ZipRecruiter(Driver):
 
                 job_url = self.driver.current_url
 
+                # FIXME: Not 100% accurate sometimes labels easy_apply falsely, idk why
                 try:
-                    self.driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']")
+                    self.wait.until(lambda driver: driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']"))
                     easy_apply = True
-                except:
+                except TimeoutException:
                     easy_apply = False
 
                 try:
-                    log.info(f"Commiting job posting to the database: {job_url}")
                     db.execute("""
                         INSERT INTO jobs(
                             link,
@@ -75,5 +79,24 @@ class ZipRecruiter(Driver):
                         )
                     )
                     db.commit()
+                    log.info(f"Committing job posting to the database: {job_url}")
                 except IntegrityError as e:
-                    log.error(f"Couldn't insert job posting: {e}")
+                    log.error(f"Couldn't save job posting: {e}")
+
+    # FIXME: This will apply to all available jobs with an easy apply option in the database. While not ideal, it is sufficient for most users.
+    def apply(self):
+        self._authenticate()
+        links = db.execute("SELECT link FROM jobs WHERE applicable = TRUE AND easy_apply = TRUE").fetchall()
+        for url in links:
+            self.driver.get(url[0])
+            buttons = self.wait.until(
+                lambda driver: driver.find_elements(By.CSS_SELECTOR, "[aria-label^='1-Click']")
+            )
+            try:
+                for button in buttons:
+                    button.click()
+            except:
+                pass
+            db.execute("UPDATE jobs SET applicable = FALSE WHERE link = ?", (url[0],))
+            db.commit()
+            log.info(f"Attempt to apply for the job: {url}")

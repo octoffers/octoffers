@@ -15,7 +15,7 @@ with db:
         description TEXT,
         easy_apply BOOLEAN DEFAULT FALSE,
         applied BOOLEAN DEFAULT FALSE,
-        applicable BOOLEAN DEFAULT FALSE
+        applicable BOOLEAN DEFAULT TRUE
     )
-    """)    
+    """)
     db.commit()
