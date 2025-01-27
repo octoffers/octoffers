@@ -7,16 +7,30 @@ with just a few clicks. Our open-source tool is free, efficient, and designed to
 
 <img src="./.assets/octoffers_mascot.png" align="right" width="50%">
 
-## Supported Platforms
+<div id="user-content-toc">
+  <ul align="left" style="list-style: none;font-weight: normal;">
+    <summary>
+      <h2>Supported Platforms</h2>
+    </summary>
+  </ul>
+</div>
+
 | Platform      | Type    | Status            |
 |---------------|---------|-------------------|
 | Djinni        | Public  | Complete          |
+| ZipRecruiter  | Public  | Complete          |
 | Indeed        | Private | Beta              |
-| ZipRecruiter  | Private | Complete          |
 | WorkBC        | Public  | ToDo              |
 | Monster       | Public  | ToDo              |
 
-## Requirements
+<div id="user-content-toc">
+  <ul align="left" style="list-style: none;font-weight: normal;">
+    <summary>
+      <h2>Prerequisites</h2>
+    </summary>
+  </ul>
+</div>
+
 - **python 3.9+**
 - **chrome webdriver**
 - **sqlite3**
