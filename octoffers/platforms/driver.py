@@ -6,6 +6,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from os import getenv, name as osname
 from pathlib import Path
+import undetected_chromedriver as uc
+from octoffers.logger import log
+
 
 load_dotenv()
 
@@ -18,11 +21,14 @@ class Driver:
         self.profile_path = self.octoffers_path / "profiles" / self.profile_name
 
     def _initiate_driver(self, *argv):
-        chrome_options = Options()
+        options = webdriver.ChromeOptions()
+        options.add_argument(f"--user-data-dir={self.profile_path}")
+        log.info(f"Profile {self.profile_name} has been loaded")
         for arg in argv:
-            chrome_options.add_argument(str(arg))
-        self.driver = webdriver.Chrome(options=chrome_options)
-        # self.driver.implicitly_wait(5)
+            options.add_argument(str(arg))
+        
+        self.driver = uc.Chrome(options=options)
+
         self.wait = WebDriverWait(self.driver, 5)
 
     def session_authorization(self):
@@ -38,3 +44,4 @@ class Driver:
 
         # Reloading the page to apply cookies
         self.driver.refresh()
+        log.info("Session cookies are set")

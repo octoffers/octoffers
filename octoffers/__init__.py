@@ -1,5 +1,6 @@
 from fire import Fire
 from octoffers.platforms.djinni import Djinni
+from octoffers.platforms.ziprecruiter import ZipRecruiter
 from octoffers.platforms.profile import Profile
 from octoffers.logger import log
 from sys import path
@@ -9,6 +10,7 @@ from os import environ
 class Octoffers:
     def __init__(self, profile: str = None):
         self.djinni = Djinni()
+        self.ziprecruiter = ZipRecruiter()
         self.profile = Profile()
         try:
             from octoffers_private.platforms.indeed import Indeed

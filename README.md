@@ -7,16 +7,30 @@ with just a few clicks. Our open-source tool is free, efficient, and designed to
 
 <img src="./.assets/octoffers_mascot.png" align="right" width="50%">
 
-### Supported Platforms
+<div id="user-content-toc">
+  <ul align="left" style="list-style: none;font-weight: normal;">
+    <summary>
+      <h2>Supported Platforms</h2>
+    </summary>
+  </ul>
+</div>
+
 | Platform      | Type    | Status            |
 |---------------|---------|-------------------|
 | Djinni        | Public  | Complete          |
+| ZipRecruiter  | Public  | Complete          |
 | Indeed        | Private | Beta              |
-| ZipRecruiter  | Private | Under Development |
 | WorkBC        | Public  | ToDo              |
 | Monster       | Public  | ToDo              |
 
-### Requirements
+<div id="user-content-toc">
+  <ul align="left" style="list-style: none;font-weight: normal;">
+    <summary>
+      <h2>Prerequisites</h2>
+    </summary>
+  </ul>
+</div>
+
 - **python 3.9+**
 - **chrome webdriver**
 - **sqlite3**
@@ -24,15 +38,34 @@ with just a few clicks. Our open-source tool is free, efficient, and designed to
 <br>
 <hr>
 
-### Quick start
-1) **Install required dependency**
-`pip install -r requirements.txt`
+## Quick start
+1) **Install package with pip**
+`pip install octoffers`
 2) **Pull Private Drivers** (if you have access)
-`git submodule update --init --recursive`
-3) **Use OctOffers**
-`python octoffers`
+```bash
+git clone $PRIVATE_DRIVER_ORIGIN
+cd $PRIVATE_DRIVER_REPOSITORY
+pip install .
+```
+3) **Use Octoffers**
+`octoffers help`
 
-### Example use cases
+## How to use this
+
+### ZipRecruiter
+
+- **Fetch 3 pages of job postings**
+```bash
+octoffers ziprecruiter fetch "Software Engineer" --pages 3
+```
+
+- **Apply to all available jobs from ZipRecruiter**
+```bash
+octoffers ziprecruiter apply
+```
+
+### Djinni
+
 - **Fetch about 50 jobs from djinni**
 ```bash
 python octoffers djinni fetch devops --pages 5
@@ -44,9 +77,11 @@ python octoffers djinni apply "Hello, I'm looking for job" # <-- This argument s
 
 ### `.env` sample
 ```env
-DJINNI_SESSION_ID=".2193dhsa9h419d1"
+DJINNI_SESSION_ID=[djinni_session_id] # Cookies
 MOCK_EMAILADDR="jhondoe@gmail.com"
 INDEED_REGION="ca"
+ZIPRECRUITER_SESSION=[ziprecruiter_session] # Cookies
+PYTHONBREAKPOINT=ipdb.set_trace # Debugging with ipdb
 ```
 
 ### Questions & Anwsers
