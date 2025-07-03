@@ -4,7 +4,6 @@ from octoffers.platforms.driver import Driver
 from octoffers.db.schemes.ziprecruiter import db
 from os import environ
 from sys import exit
-from ipdb import pm
 from sqlite3 import IntegrityError
 from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 
