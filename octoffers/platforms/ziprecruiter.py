@@ -51,14 +51,15 @@ class ZipRecruiter(Driver):
             self.driver.execute_script("document.querySelector('body > div[data-focus-lock-disabled=false]').remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
             
             for job in posts:
-                job.find_element(By.TAG_NAME, "button").click()
+                job.find_element(By.CSS_SELECTOR, "section > .gap-12 > div > button").click()
                 
                 # Remove it again since it appears again after clicking the job
-                self.driver.execute_script("document.querySelector('body > div[data-focus-lock-disabled=false]').remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
+                self.driver.execute_script("let popup = document.querySelector('body > div[data-focus-lock-disabled=false]'); if (popup) popup.remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
 
                 titles = self.wait.until(
                     lambda driver: driver.find_elements(By.CSS_SELECTOR, "#react-serp-root .gap-y-8 h1")
                 )
+                print(f"Fetching job posting: {''.join([title.text for title in titles])}")
                 job_description = self.wait.until(
                     lambda driver: driver.find_element(
                         By.CSS_SELECTOR, ".gap-y-\\[16px\\] > div > div"
@@ -68,13 +69,17 @@ class ZipRecruiter(Driver):
                 job_url = self.driver.current_url
 
                 # FIXME: Not 100% accurate sometimes labels easy_apply falsely, idk why
-                try:
+                """ try:
                     self.wait.until(lambda driver: driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']"))
                     easy_apply = True
                 except TimeoutException:
-                    easy_apply = False
+                    easy_apply = False """
+                easy_apply = False # TODO: Fix this, just make check if the button exists (tbh idk which button)
 
                 try:
+                    if db.execute("SELECT link FROM jobs WHERE link = ?", (job_url,)).fetchone():
+                        log.info(f"Job posting already exists in the database: {job_url}")
+                        continue
                     db.execute("""
                         INSERT INTO jobs(
                             link,
