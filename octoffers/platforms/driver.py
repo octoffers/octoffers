@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from chrome_version import get_chrome_version
 from os import getenv, name as osname
 from pathlib import Path
 import undetected_chromedriver as uc
@@ -30,7 +31,7 @@ class Driver:
         log.info(f"Profile {self.profile_name} has been loaded")
         for arg in argv:
             options.add_argument(str(arg))
-        driver_path = ChromeDriverManager("132.0.6834.160").install()
+        driver_path = ChromeDriverManager(get_chrome_version()).install()
         self.driver = uc.Chrome(options=options, driver_executable_path=driver_path)
 
         self.wait = WebDriverWait(self.driver, 5)

@@ -12,7 +12,8 @@ dependencies = [
     "python-dotenv==1.0.0",
     "requests==2.31.0",
     "pytest==8.1.1",
-    "undetected-chromedriver==3.5.5"
+    "undetected-chromedriver==3.5.5",
+    "chrome-version==0.3.1"
 ]
 
 [project.scripts]
