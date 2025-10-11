@@ -14,6 +14,10 @@ class ZipRecruiter(Driver):
         super().__init__(domain)
         self.origin = f"https://{domain}/jobs-search" 
         self.chrome_args = ("--disable-dev-shm-usage",)
+
+    def _authenticate(self):
+        self._initiate_driver(*self.chrome_args)
+
         try:
             self.session_cookies = [{
                 "name": "ziprecruiter_session",
@@ -23,9 +27,6 @@ class ZipRecruiter(Driver):
         except KeyError:
             log.error("Session Cookies aren't set in your environment variables")
             exit(1)
-
-    def _authenticate(self):
-        self._initiate_driver(*self.chrome_args)
 
         # FIXME: Currently works only with default profile
         for cookie in self.driver.get_cookies():
