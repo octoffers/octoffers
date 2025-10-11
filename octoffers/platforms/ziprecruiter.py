@@ -99,7 +99,7 @@ class ZipRecruiter(Driver):
                     log.info(f"Committing job posting to the database: {job_url}")
                     continue
                 except IntegrityError as e:
-                    log.error(f"Couldn't save job posting: {"".join([title.text for title in titles])}")
+                    log.error(f"Couldn't save job posting: {''.join([title.text for title in titles])}")
                     continue
 
     # FIXME: This will apply to all available jobs with an easy apply option in the database. While not ideal, it is sufficient for most users.
