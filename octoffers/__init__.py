@@ -1,7 +1,8 @@
 from fire import Fire
+from octoffers.platforms.profile import Profile
+Profile(name="default")
 from octoffers.platforms.djinni import Djinni
 from octoffers.platforms.ziprecruiter import ZipRecruiter
-from octoffers.platforms.profile import Profile
 from octoffers.logger import log
 from sys import path
 from pathlib import Path

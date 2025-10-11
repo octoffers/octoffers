@@ -1,5 +1,6 @@
 from octoffers.logger import log
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from octoffers.platforms.driver import Driver
 from octoffers.db.schemes.ziprecruiter import db
 from os import environ
@@ -38,31 +39,47 @@ class ZipRecruiter(Driver):
         for idx in range(1, pages+1):
             url = f"{self.origin}?search={role}&location={location}&page={idx}"
             self.driver.get(url)
-            posts = self.wait.until(
-                lambda driver: driver.find_elements(By.CLASS_NAME, "job_result_two_pane")
-            )
+            try:
+                posts = self.wait.until(
+                    lambda driver: driver.find_elements(By.CLASS_NAME, "job_result_two_pane_v2")
+                )
+            except TimeoutException as e:
+                raise e
+                log.error("Couldn't find any job postings, please check your search parameters.")
+                return
+            # Remove annoying pop-up
+            self.driver.execute_script("document.querySelector('body > div[data-focus-lock-disabled=false]').remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
+            
             for job in posts:
-                job.find_element(By.TAG_NAME, "h2").click()
+                job.find_element(By.CSS_SELECTOR, "section > .gap-12 > div > button").click()
+                
+                # Remove it again since it appears again after clicking the job
+                self.driver.execute_script("let popup = document.querySelector('body > div[data-focus-lock-disabled=false]'); if (popup) popup.remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
 
                 titles = self.wait.until(
-                    lambda driver: driver.find_elements(By.TAG_NAME, "h1")
+                    lambda driver: driver.find_elements(By.CSS_SELECTOR, "#react-serp-root .gap-y-8 h1")
                 )
+                print(f"Fetching job posting: {''.join([title.text for title in titles])}")
                 job_description = self.wait.until(
                     lambda driver: driver.find_element(
-                        By.CSS_SELECTOR, ".text-primary.whitespace-pre-line.break-words"
-                    ).text
-                )
+                        By.CSS_SELECTOR, ".gap-y-\\[16px\\] > div > div"
+                    )
+                ).text
 
                 job_url = self.driver.current_url
 
                 # FIXME: Not 100% accurate sometimes labels easy_apply falsely, idk why
-                try:
+                """ try:
                     self.wait.until(lambda driver: driver.find_element(By.CSS_SELECTOR, "[aria-label^='1-Click']"))
                     easy_apply = True
                 except TimeoutException:
-                    easy_apply = False
+                    easy_apply = False """
+                easy_apply = False # TODO: Fix this, just make check if the button exists (tbh idk which button)
 
                 try:
+                    if db.execute("SELECT link FROM jobs WHERE link = ?", (job_url,)).fetchone():
+                        log.info(f"Job posting already exists in the database: {job_url}")
+                        continue
                     db.execute("""
                         INSERT INTO jobs(
                             link,
@@ -79,8 +96,10 @@ class ZipRecruiter(Driver):
                     )
                     db.commit()
                     log.info(f"Committing job posting to the database: {job_url}")
+                    continue
                 except IntegrityError as e:
-                    log.error(f"Couldn't save job posting: {e}")
+                    log.error(f"Couldn't save job posting: {"".join([title.text for title in titles])}")
+                    continue
 
     # FIXME: This will apply to all available jobs with an easy apply option in the database. While not ideal, it is sufficient for most users.
     def apply(self):

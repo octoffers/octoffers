@@ -3,8 +3,12 @@ import sqlite3
 from pathlib import Path
 
 if os.name == "nt":
+    if not os.path.exists(f"{Path.home()}/Octoffers"):
+        os.makedirs(f"{Path.home()}/Octoffers")
     db = sqlite3.connect(f"{Path.home()}/Octoffers/ziprecruiter.db")
 else:
+    if not os.path.exists(f"{os.environ['HOME']}/.config/octoffers"):
+        os.makedirs(f"{os.environ['HOME']}/.config/octoffers")
     db = sqlite3.connect(f"{os.environ['HOME']}/.config/octoffers/ziprecruiter.db")
 with db:
     db.execute("""
