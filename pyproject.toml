@@ -7,7 +7,7 @@ license = { text = "BSD 3-Clause License" }
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fire==0.7.0",
+    "fire==0.7.1",
     "selenium==4.36.0",
     "requests==2.31.0",
     "pytest==8.1.1",

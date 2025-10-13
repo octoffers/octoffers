@@ -32,7 +32,7 @@ class Driver:
         for arg in argv:
             options.add_argument(str(arg))
         driver_path = ChromeDriverManager(get_chrome_version()).install()
-        self.driver = uc.Chrome(options=options, driver_executable_path=driver_path)
+        self.driver = webdriver.Chrome(options=options) 
 
         self.wait = WebDriverWait(self.driver, 5)
 
