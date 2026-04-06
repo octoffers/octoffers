@@ -45,9 +45,8 @@ class ZipRecruiter(Driver):
                     lambda driver: driver.find_elements(By.CLASS_NAME, "job_result_two_pane_v2")
                 )
             except TimeoutException as e:
-                raise e
                 log.error("Couldn't find any job postings, please check your search parameters.")
-                return
+                raise e
             # Remove annoying pop-up
             self.driver.execute_script("document.querySelector('body > div[data-focus-lock-disabled=false]').remove(document.querySelector('body > div[data-focus-lock-disabled=false] > div'))")
             
